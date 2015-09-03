@@ -25,7 +25,7 @@
 /* Begin PBXFileReference section */
 		F88252BC1B982A930086945C /* empdb */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = empdb; sourceTree = BUILT_PRODUCTS_DIR; };
 		F88252BF1B982A930086945C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		F88252C61B982AA70086945C /* My_Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = My_Macros.h; path = "../../../../../../../../Documents/Xcode Files/Files/My_Macros.h"; sourceTree = "<group>"; };
+		F88252C71B982BB10086945C /* My_Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = My_Macros.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +58,7 @@
 		F88252BE1B982A930086945C /* empdb */ = {
 			isa = PBXGroup;
 			children = (
-				F88252C61B982AA70086945C /* My_Macros.h */,
+				F88252C71B982BB10086945C /* My_Macros.h */,
 				F88252BF1B982A930086945C /* main.cpp */,
 			);
 			path = empdb;
