@@ -145,7 +145,7 @@ void OpenFile(string &location, int ownfile)
     }
     
     //open file
-    ofstream database (location, ios::app);
+    ifstream database (location);
     if (database.is_open())
     {
         WriteFile(location);
@@ -168,8 +168,8 @@ void WriteFile(string location)
     cout << "In WriteFile() !!\n";
 #endif
     //variables
-    string fname;
-    string lname;
+    char fname[25];
+    char lname[25];
     char MI;
     int social;
     int area_code;
@@ -179,10 +179,8 @@ void WriteFile(string location)
     //get information
     cout << "Employee's last name\n";
     cin >> lname;
-    lname = lname + "\0";
     cout << "Employee's first name\n";
     cin >> fname;
-    fname = fname + "\0";
     cout << "Employee's Middle Intial\n";
     cin >> MI;
     cout << "Employee's SSN\n";
@@ -197,11 +195,14 @@ void WriteFile(string location)
     //write to file
     ofstream fout;
     fout.open(location, ios::app);
-    //test for file integrity
-    if (fout.is_open())
-    {
-        
-    }
+
+    fout << lname << endl
+        << fname << endl
+        << MI << endl
+        << social << endl
+        << area_code << endl
+        << phone_num << endl
+        << salary << endl;
 }
 
 

@@ -7,7 +7,7 @@
 
 
 //debug comments (T/F)
-#define SHOW_DEBUG_OUTPUT 1
+#define SHOW_DEBUG_OUTPUT 0
 
 //array size calculation    total bytes/bytes of 0 location
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
