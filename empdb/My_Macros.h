@@ -34,7 +34,7 @@ swap = true;                        \
 
 
 #define EXIT_CODE_SUCCESS 0
-#define EXIT_CODE_ERROR_1 1
+#define EXIT_CODE_NO_FILE 1
 #define EXIT_CODE_ERROR_2 2
 
 #define DEBUG_OUTPUT(x) std::cout << #x << " = " << x << std::endl;

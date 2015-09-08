@@ -57,10 +57,9 @@ int main()
     {
         //menu
         cout << "   Employee Database Editor    \n\n"
-        << " Pick an option number from the menu below.\n\n"
         << "    Main Menu\n"
         << "1. Create new database file\n"
-        << "2. Edit current database file\n"
+        << "2. Add to current database file\n"
         << "3. Print a database report\n"
         << "9. Exit\n";
         cin >> choose;
@@ -72,12 +71,13 @@ int main()
                 cout << "test 1\n";
 #endif
                 CreateFile(location, ownfile);
-            case 2:
-                OpenFile(location, ownfile);
                 WriteFile(location);
+                break;
+            case 2:
 #if SHOW_DEBUG_OUTPUT
-                cout << "inside the loop!\n";
+                cout << "test 2\n";
 #endif
+                OpenFile(location, ownfile);
                 break;
             case 3:
 #if SHOW_DEBUG_OUTPUT
@@ -114,7 +114,7 @@ void CreateFile(string &location, int &ownfile)
     cin >> location;
     
 #if SHOW_DEBUG_OUTPUT
-    cout << location;
+    cout << location << endl;
 #endif
     //to not ask for file later on
     ownfile = 1;
@@ -133,6 +133,20 @@ void OpenFile(string location, int ownfile)
     {
         cout << "Where is the database and what is it called?\n";
         cin >> location;
+        //file check
+        ifstream fin;
+        fin.open(location);
+        if (fin.is_open())
+        {
+            fin.close();
+            WriteFile(location);
+        }
+        else
+        {
+            cout << "Failed to open file\n";
+            exit(EXIT_CODE_NO_FILE);
+        }
+
 #if SHOW_DEBUG_OUTPUT
         cout << location << endl;
 #endif
@@ -161,7 +175,10 @@ void WriteFile(string location)
     float salary;
     int x = 2;
     char yesno;
-    
+    //file IO
+    ofstream fout;
+    fout.open(location, ios::app);
+
     while (x == 2)
     {
         //get information
@@ -181,9 +198,6 @@ void WriteFile(string location)
         cin >> salary;
         
         //write to file
-        ofstream fout;
-        fout.open(location, ios::app);
-
         fout << lname << endl
             << fname << endl
             << MI << endl
@@ -202,6 +216,8 @@ void WriteFile(string location)
         else
             x=1;
     }
+    fout.close();
+
 }
 
 
