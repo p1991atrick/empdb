@@ -35,6 +35,6 @@ swap = true;                        \
 
 #define EXIT_CODE_SUCCESS 0
 #define EXIT_CODE_ERROR_1 1
-#define EXIT_CODE_ERROR_NO_MATCH_FOUND 2
+#define EXIT_CODE_ERROR_2 2
 
 #define DEBUG_OUTPUT(x) std::cout << #x << " = " << x << std::endl;

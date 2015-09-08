@@ -32,7 +32,7 @@ using namespace std;
 void CreateFile(string &location, int &ownfile);
 void Apend();
 void Print();
-void OpenFile(string &location, int ownfile);
+void OpenFile(string location, int ownfile);
 void WriteFile(string);
 
 
@@ -64,6 +64,7 @@ int main()
         << "3. Print a database report\n"
         << "9. Exit\n";
         cin >> choose;
+        
         switch(choose)
         {
             case 1:
@@ -71,7 +72,6 @@ int main()
                 cout << "test 1\n";
 #endif
                 CreateFile(location, ownfile);
-                //intentionaly removed break line!!!!
             case 2:
                 OpenFile(location, ownfile);
                 WriteFile(location);
@@ -109,20 +109,14 @@ int main()
 
 void CreateFile(string &location, int &ownfile)
 {
-    //one off variables
-    string location2;
-    string filename;
-    
     //get peramiters
     cout << "what should the database be called?\n";
-    cin >> filename;
-    cout << "Where should the database be saved?\n";
-    cin >> location2;
+    cin >> location;
     
-    location = location2 + filename;
 #if SHOW_DEBUG_OUTPUT
     cout << location;
 #endif
+    //to not ask for file later on
     ownfile = 1;
 }
 
@@ -132,7 +126,7 @@ void CreateFile(string &location, int &ownfile)
  RETURNS:           0 for good and 1 for fail
  NOTES:
  ----------------------------------------------------------------------------- */
-void OpenFile(string &location, int ownfile)
+void OpenFile(string location, int ownfile)
 {
     //find file
     if (ownfile == 2)
@@ -144,16 +138,6 @@ void OpenFile(string &location, int ownfile)
 #endif
     }
     
-    //open file
-    ifstream database (location);
-    if (database.is_open())
-    {
-        WriteFile(location);
-    }
-    else
-    {
-        cout << "Failed to open file\n";
-    }
 }
 
 /* -----------------------------------------------------------------------------
@@ -171,41 +155,54 @@ void WriteFile(string location)
     char fname[25];
     char lname[25];
     char MI;
-    int social;
-    int area_code;
-    int phone_num;
+    unsigned int social;
+    unsigned int area_code;
+    unsigned int phone_num;
     float salary;
+    int x = 2;
+    char yesno;
     
-    //get information
-    cout << "Employee's last name\n";
-    cin >> lname;
-    cout << "Employee's first name\n";
-    cin >> fname;
-    cout << "Employee's Middle Intial\n";
-    cin >> MI;
-    cout << "Employee's SSN\n";
-    cin >> social;
-    cout << "Employee's Area Code\n";
-    cin >> area_code;
-    cout << "Employee's Phone Number\n";
-    cin >> phone_num;
-    cout << "Employee's Salary\n";
-    cin >> salary;
-    
-    //write to file
-    ofstream fout;
-    fout.open(location, ios::app);
+    while (x == 2)
+    {
+        //get information
+        cout << "Employee's last name\n";
+        cin >> lname;
+        cout << "Employee's first name\n";
+        cin >> fname;
+        cout << "Employee's Middle Intial\n";
+        cin >> MI;
+        cout << "Employee's SSN\n";
+        cin >> social;
+        cout << "Employee's Area Code\n";
+        cin >> area_code;
+        cout << "Employee's Phone Number\n";
+        cin >> phone_num;
+        cout << "Employee's Salary\n";
+        cin >> salary;
+        
+        //write to file
+        ofstream fout;
+        fout.open(location, ios::app);
 
-    fout << lname << endl
-        << fname << endl
-        << MI << endl
-        << social << endl
-        << area_code << endl
-        << phone_num << endl
-        << salary << endl;
+        fout << lname << endl
+            << fname << endl
+            << MI << endl
+            << social << endl
+            << area_code << endl
+            << phone_num << endl
+            << salary << endl;
+        
+        cout << "Add another entery to database? (y,n)\n";
+        cin >> yesno;
+        
+        if (yesno == 'y' || yesno == 'Y')
+        {
+            x=2;
+        }
+        else
+            x=1;
+    }
 }
-
-
 
 
 
