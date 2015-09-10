@@ -29,12 +29,12 @@
 using namespace std;
 
 //function prototypes
-void CreateFile(string &location, int &ownfile);
+void CreateFile(string &location);
 void Apend();
-void Print();
-void OpenFile(string location, int ownfile);
-void WriteFile(string);
-
+void Print(string location);
+void OpenFile(string location, int &i);
+void WriteFile(string, int &i);
+void Print_title(ofstream& fout);
 
 
 
@@ -48,7 +48,7 @@ int main()
 {
     //variables for later on
     string location;
-    int ownfile = 2;
+    int i = 1;  // for number of enteries
     //int for main menu
     int choose;
     int loop = 3;
@@ -70,19 +70,20 @@ int main()
 #if SHOW_DEBUG_OUTPUT
                 cout << "test 1\n";
 #endif
-                CreateFile(location, ownfile);
-                WriteFile(location);
+                CreateFile(location);
+                WriteFile(location, i);
                 break;
             case 2:
 #if SHOW_DEBUG_OUTPUT
                 cout << "test 2\n";
 #endif
-                OpenFile(location, ownfile);
+                OpenFile(location, i);
                 break;
             case 3:
 #if SHOW_DEBUG_OUTPUT
                 cout << "test 3\n";
 #endif
+                Print(location);
                 break;
             case 9:
                 cout << "Good bye\n";
@@ -96,7 +97,7 @@ int main()
     }
     
     
-    return 0;
+    return EXIT_CODE_SUCCESS;
 }
 
 
@@ -107,7 +108,7 @@ int main()
  NOTES:
  ----------------------------------------------------------------------------- */
 
-void CreateFile(string &location, int &ownfile)
+void CreateFile(string &location)
 {
     //get peramiters
     cout << "what should the database be called?\n";
@@ -116,8 +117,7 @@ void CreateFile(string &location, int &ownfile)
 #if SHOW_DEBUG_OUTPUT
     cout << location << endl;
 #endif
-    //to not ask for file later on
-    ownfile = 1;
+    
 }
 
 /* -----------------------------------------------------------------------------
@@ -126,31 +126,29 @@ void CreateFile(string &location, int &ownfile)
  RETURNS:           0 for good and 1 for fail
  NOTES:
  ----------------------------------------------------------------------------- */
-void OpenFile(string location, int ownfile)
+void OpenFile(string location, int &i)
 {
-    //find file
-    if (ownfile == 2)
+    cout << "Where is the database and what is it called?\n";
+    cin >> location;
+    //file check
+    ifstream fin;
+    fin.open(location);
+    if (fin.is_open())
     {
-        cout << "Where is the database and what is it called?\n";
-        cin >> location;
-        //file check
-        ifstream fin;
-        fin.open(location);
-        if (fin.is_open())
-        {
-            fin.close();
-            WriteFile(location);
-        }
-        else
-        {
-            cout << "Failed to open file\n";
-            exit(EXIT_CODE_NO_FILE);
-        }
+        fin.seekg(0, ios::beg);
+        fin >> i;
+        fin.close();
+        WriteFile(location, i);
+    }
+    else
+    {
+        cout << "Failed to open file\n";
+        exit(EXIT_CODE_NO_FILE);
+    }
 
 #if SHOW_DEBUG_OUTPUT
-        cout << location << endl;
+    cout << location << endl;
 #endif
-    }
     
 }
 
@@ -160,7 +158,7 @@ void OpenFile(string location, int ownfile)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(string location)
+void WriteFile(string location, int &i)
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile() !!\n";
@@ -181,6 +179,9 @@ void WriteFile(string location)
 
     while (x == 2)
     {
+        //number of enteries line
+        fout.seekp(0, ios::beg);
+        fout << i;
         //get information
         cout << "Employee's last name\n";
         cin >> lname;
@@ -198,6 +199,7 @@ void WriteFile(string location)
         cin >> salary;
         
         //write to file
+        fout.seekp(0, ios::end);
         fout << lname << endl
             << fname << endl
             << MI << endl
@@ -212,6 +214,7 @@ void WriteFile(string location)
         if (yesno == 'y' || yesno == 'Y')
         {
             x=2;
+            i++;
         }
         else
             x=1;
@@ -221,10 +224,58 @@ void WriteFile(string location)
 }
 
 
+void Print(string location)
+{
+    //variables
+    char fname[25];
+    char lname[25];
+    char MI;
+    unsigned int social;
+    unsigned int area_code;
+    unsigned int phone_num;
+    float salary;
+    string location2;
+    int i, j;   //i = numb of entries, j =
+    
+    cout << "Where should the file be saved and what should it be called?\n";
+    cin >> location2;
+    
+    //open database file and get # of enteries
+    ifstream fin;
+    fin.open(location);
+    if (fin.is_open())
+    {
+        fin.seekg (0, ios::beg);
+        fin >> i;
+    }
+    else
+    {
+        cout << "Failed to open file\n";
+        exit(EXIT_CODE_NO_FILE);
+    }
+    //setup user document
+    ofstream fout;
+    fout.open(location2);
+    
+    Print_title(fout);
+    for (j = 1; j < i; j++)
+    {
+        fin.seekg(((7*j)-7), ios::beg);
+        fin >> lname;
+        fin >> fname;
+        fin >> MI;
+        fin >> social;
+        fin >> area_code;
+        fin >> phone_num;
+        fin >> salary;
+    }
+}
 
 
-
-
+void Print_title(ofstream& fout)
+{
+    
+}
 
 
 
