@@ -36,7 +36,18 @@ void OpenFile(string location, int &i);
 void WriteFile(string, int &i);
 void Print_title(ofstream& fout);
 
-
+//record information and variables
+const int NAME_SIZE = 25;
+struct Info
+{
+    char fname[NAME_SIZE];
+    char lname[NAME_SIZE];
+    char MI;
+    unsigned int social;
+    unsigned int area_code;
+    unsigned int phone_num;
+    float salary;
+};
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          main()
@@ -126,29 +137,26 @@ void CreateFile(string &location)
  RETURNS:           0 for good and 1 for fail
  NOTES:
  ----------------------------------------------------------------------------- */
-void OpenFile(string location, int &i)
+void OpenFile(string location, int &num)
 {
     cout << "Where is the database and what is it called?\n";
     cin >> location;
     //file check
-    ifstream fin;
-    fin.open(location);
+    ifstream fin(location, ios::binary);
     if (fin.is_open())
     {
         fin.seekg(0, ios::beg);
-        fin >> i;
-        fin.close();
-        WriteFile(location, i);
+        //fin.get(num);
+#if SHOW_DEBUG_OUTPUT
+        cout << location << endl << "i= " << num << endl;
+#endif
+        WriteFile(location, num);
     }
     else
     {
         cout << "Failed to open file\n";
         exit(EXIT_CODE_NO_FILE);
     }
-
-#if SHOW_DEBUG_OUTPUT
-    cout << location << endl;
-#endif
     
 }
 
@@ -161,65 +169,51 @@ void OpenFile(string location, int &i)
 void WriteFile(string location, int &i)
 {
 #if SHOW_DEBUG_OUTPUT
-    cout << "In WriteFile() !!\n";
+    cout << "In WriteFile !!\n";
 #endif
     //variables
-    char fname[25];
-    char lname[25];
-    char MI;
-    unsigned int social;
-    unsigned int area_code;
-    unsigned int phone_num;
-    float salary;
+    Info person;
     int x = 2;
     char yesno;
     //file IO
-    ofstream fout;
-    fout.open(location, ios::app);
+    fstream database(location, ios::out | ios::app | ios::binary);
 
-    while (x == 2)
+    do
     {
         //number of enteries line
-        fout.seekp(0, ios::beg);
-        fout << i;
+        //database.seekp(0, ios::beg);
+        //database.get(i);
         //get information
-        cout << "Employee's last name\n";
-        cin >> lname;
-        cout << "Employee's first name\n";
-        cin >> fname;
-        cout << "Employee's Middle Intial\n";
-        cin >> MI;
+        cout << "First Name: ";
+        cin.getline(person.fname, NAME_SIZE);
+        cout << "Middle Intital: ";
+        cin >> person.MI;
+        //if (islower(person.MI))
+        cout << "Last Name: ";
+        cin.getline(person.lname, NAME_SIZE);
         cout << "Employee's SSN\n";
-        cin >> social;
+        cin >> person.social;
         cout << "Employee's Area Code\n";
-        cin >> area_code;
+        cin >> person.area_code;
         cout << "Employee's Phone Number\n";
-        cin >> phone_num;
+        cin >> person.phone_num;
         cout << "Employee's Salary\n";
-        cin >> salary;
+        cin >> person.salary;
         
         //write to file
-        fout.seekp(0, ios::end);
-        fout << lname << endl
-            << fname << endl
-            << MI << endl
-            << social << endl
-            << area_code << endl
-            << phone_num << endl
-            << salary << endl;
+        database.write(reinterpret_cast<char *> (&person), sizeof(person));
         
         cout << "Add another entery to database? (y,n)\n";
         cin >> yesno;
-        
+        cin.ignore();
         if (yesno == 'y' || yesno == 'Y')
         {
-            x=2;
             i++;
         }
         else
             x=1;
-    }
-    fout.close();
+    }while (x==2);
+    database.close();
 
 }
 
