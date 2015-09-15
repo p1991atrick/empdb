@@ -24,17 +24,10 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cstring>
 #include "My_Macros.h"
 
 using namespace std;
-
-//function prototypes
-void CreateFile(string &location);
-void Apend();
-void Print(string location);
-void OpenFile(string location, int &i);
-void WriteFile(string, int &i);
-void Print_title(ofstream& fout);
 
 //record information and variables
 const int NAME_SIZE = 25;
@@ -49,6 +42,16 @@ struct Info
     float salary;
 };
 
+//function prototypes
+void CreateFile(string &location);
+void Apend();
+void Print(string location);
+void OpenFile(string location);
+void WriteFile(string);
+void Print_title(ofstream& fout);
+void Print_body(ofstream& report, int i, Info *);
+
+
 /* -----------------------------------------------------------------------------
  FUNCTION:          main()
  DESCRIPTION:       The guy driving
@@ -59,7 +62,6 @@ int main()
 {
     //variables for later on
     string location;
-    int i = 1;  // for number of enteries
     //int for main menu
     int choose;
     int loop = 3;
@@ -82,13 +84,13 @@ int main()
                 cout << "test 1\n";
 #endif
                 CreateFile(location);
-                WriteFile(location, i);
+                WriteFile(location);
                 break;
             case 2:
 #if SHOW_DEBUG_OUTPUT
                 cout << "test 2\n";
 #endif
-                OpenFile(location, i);
+                OpenFile(location);
                 break;
             case 3:
 #if SHOW_DEBUG_OUTPUT
@@ -137,7 +139,7 @@ void CreateFile(string &location)
  RETURNS:           0 for good and 1 for fail
  NOTES:
  ----------------------------------------------------------------------------- */
-void OpenFile(string location, int &num)
+void OpenFile(string location)
 {
     cout << "Where is the database and what is it called?\n";
     cin >> location;
@@ -145,12 +147,10 @@ void OpenFile(string location, int &num)
     ifstream fin(location, ios::binary);
     if (fin.is_open())
     {
-        fin.seekg(0, ios::beg);
-        //fin.get(num);
 #if SHOW_DEBUG_OUTPUT
-        cout << location << endl << "i= " << num << endl;
+        cout << location << endl << endl;
 #endif
-        WriteFile(location, num);
+        WriteFile(location);
     }
     else
     {
@@ -166,49 +166,71 @@ void OpenFile(string location, int &num)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(string location, int &i)
+void WriteFile(string location)
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
     //variables
-    Info person;
     int x = 2;
     char yesno;
+    Info person;
     //file IO
     fstream database(location, ios::out | ios::app | ios::binary);
 
     do
     {
-        //number of enteries line
-        //database.seekp(0, ios::beg);
-        //database.get(i);
         //get information
+        cin.ignore();
+        //get first name
         cout << "First Name: ";
         cin.getline(person.fname, NAME_SIZE);
+        if (strlen(person.fname) > 24)
+        {
+            cout << "Name can't have more than 24 letters. Enter name again: ";
+            cin.getline(person.fname, NAME_SIZE);
+        }
+        //get mi
         cout << "Middle Intital: ";
         cin >> person.MI;
-        //if (islower(person.MI))
+        if (islower(person.MI))
+        {
+            putchar (toupper(person.MI));
+        }
+        cin.ignore();
+        //get last name
         cout << "Last Name: ";
         cin.getline(person.lname, NAME_SIZE);
-        cout << "Employee's SSN\n";
+        if (strlen(person.lname) > 24)
+        {
+            cout << "Name can't have more than 24 letters. Enter name again: ";
+            cin.getline(person.lname, NAME_SIZE);
+        }
+        //get ssn
+        cout << "Employee's SSN: ";
         cin >> person.social;
-        cout << "Employee's Area Code\n";
+        /*while (sizeof(person.social) < 9 || sizeof(person.social) > 9)
+        {
+            cin >> person.social;
+            cout << "You must enter a valid SSN: ";
+        }*/
+        //get phone area code
+        cout << "Employee's Area Code: ";
         cin >> person.area_code;
-        cout << "Employee's Phone Number\n";
+        cout << "Employee's Phone Number: ";
         cin >> person.phone_num;
-        cout << "Employee's Salary\n";
+        cout << "Employee's Salary: ";
         cin >> person.salary;
         
         //write to file
         database.write(reinterpret_cast<char *> (&person), sizeof(person));
         
+        //go again?
         cout << "Add another entery to database? (y,n)\n";
         cin >> yesno;
-        cin.ignore();
         if (yesno == 'y' || yesno == 'Y')
         {
-            i++;
+            x=2;
         }
         else
             x=1;
@@ -218,29 +240,31 @@ void WriteFile(string location, int &i)
 }
 
 
+/* -----------------------------------------------------------------------------
+ FUNCTION:          Print()
+ DESCRIPTION:       controls the writing of the report file
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
 void Print(string location)
 {
     //variables
-    char fname[25];
-    char lname[25];
-    char MI;
-    unsigned int social;
-    unsigned int area_code;
-    unsigned int phone_num;
-    float salary;
     string location2;
-    int i, j;   //i = numb of entries, j =
+    int i = 1;
+    Info person;
     
-    cout << "Where should the file be saved and what should it be called?\n";
+    cout << "Where is the database: ";
+    cin >> location;
+    
+    cout << "Where should the file be saved and what should it be called: ";
     cin >> location2;
     
     //open database file and get # of enteries
-    ifstream fin;
-    fin.open(location);
-    if (fin.is_open())
+    ifstream database;
+    database.open(location, ios::binary);
+    if (database.is_open())
     {
-        fin.seekg (0, ios::beg);
-        fin >> i;
+        cout << "File is open.\n";
     }
     else
     {
@@ -248,28 +272,108 @@ void Print(string location)
         exit(EXIT_CODE_NO_FILE);
     }
     //setup user document
-    ofstream fout;
-    fout.open(location2);
+    ofstream report;
+    report.open(location2, ios::trunc);
     
-    Print_title(fout);
-    for (j = 1; j < i; j++)
+    //setup file header
+    Print_title(report);
+    
+    //loop to write enteries to file
+    while (!database.eof())
     {
-        fin.seekg(((7*j)-7), ios::beg);
-        fin >> lname;
-        fin >> fname;
-        fin >> MI;
-        fin >> social;
-        fin >> area_code;
-        fin >> phone_num;
-        fin >> salary;
+        //loading record
+        database.read(reinterpret_cast<char *>(&person), sizeof(person));
+        //write to file
+        Print_body(report, i, &person);
+        i++;//record count
     }
+    //close files
+    database.close();
+    report.close();
 }
 
 
-void Print_title(ofstream& fout)
+
+/* -----------------------------------------------------------------------------
+ FUNCTION:          Print_title()
+ DESCRIPTION:       write the header lables to the report file
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
+
+void Print_title(ofstream& report)
 {
     
+    report << "Employee    Last                    First                   MI    SS           Phone           Yearly" << endl
+           << "Number      Name                    Name                          Number       Number          Salary" << endl
+           << "--------    ----                    -----                   --    ------       ------          ------" << endl;
 }
+
+
+
+/* -----------------------------------------------------------------------------
+ FUNCTION:          Print_body()
+ DESCRIPTION:       writes the bulk of the information to the report file
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
+void Print_body(ofstream& report, int i, Info *db)
+{
+    int stringlength, x;
+    if (i < 10)
+    {
+        //line number
+        report << i << "           ";
+    }
+    else if(i >= 10 || i < 100)
+    {
+        report << i << "          ";
+    }
+    //last name placement
+    stringlength = strlen(db->lname);
+    x = 24 - stringlength;
+    report << db->lname;
+    for (int j=0; j<x; j++)
+    {
+        report << " ";
+    }
+    //first name placement
+    stringlength = strlen(db->fname);
+    x = 24 - stringlength;
+    report << db->fname;
+    for (int j=0; j<x; j++)
+    {
+        report << " ";
+    }
+    //MI placement
+    report << db->MI << "     ";
+    //SS number placement
+    report << db->social << "    ";
+    //phone number placement
+    report << "(" << db->area_code << ")" << db->phone_num << "    ";
+    //salary placement
+    report << db->salary << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
