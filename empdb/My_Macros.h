@@ -38,3 +38,5 @@ swap = true;                        \
 #define EXIT_CODE_ERROR_2 2
 
 #define DEBUG_OUTPUT(x) std::cout << #x << " = " << x << std::endl;
+
+#define CLEAR_SCREEN std::cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;

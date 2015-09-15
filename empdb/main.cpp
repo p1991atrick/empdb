@@ -108,6 +108,7 @@ int main()
                 << choose << " is not a valid selection\n\n";
                 break;
         }
+        CLEAR_SCREEN;
     }
     
     
@@ -142,7 +143,7 @@ void CreateFile(string &location)
  ----------------------------------------------------------------------------- */
 void OpenFile(string location)
 {
-    cout << "Where is the database and what is it called?\n";
+    cout << "Database location/name: ";
     cin >> location;
     //file check
     ifstream fin(location, ios::binary);
