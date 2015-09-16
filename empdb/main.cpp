@@ -40,15 +40,21 @@ struct Info
     unsigned int social;
     unsigned int area_code;
     unsigned int phone_num;
-    float salary;
+    double salary;  //told in class to change from float to double
+};
+
+//for count
+struct Count
+{
+    int times;
 };
 
 //function prototypes
-void CreateFile(string &location);
+void CreateFile(char *, char *, int &enteries);
 void Apend();
-void Print(string location);
-void OpenFile(string location);
-void WriteFile(string);
+void Print(char *, char *);
+void OpenFile(char *, char *, int &enteries);
+void WriteFile(char *, char *, int &enteries);
 void Print_title(ofstream& fout);
 void Print_body(ofstream& report, int i, Info *);
 
@@ -62,7 +68,9 @@ void Print_body(ofstream& report, int i, Info *);
 int main()
 {
     //variables for later on
-    string location;
+    char location[50];
+    char location2[60];
+    int enteries;
     //int for main menu
     int choose;
     int loop = 3;
@@ -82,22 +90,22 @@ int main()
         {
             case 1:
 #if SHOW_DEBUG_OUTPUT
-                cout << "test 1\n";
+                cout << "In case 1\n";
 #endif
-                CreateFile(location);
-                WriteFile(location);
+                CreateFile(location, location2, enteries);
+                WriteFile(location, location2, enteries);
                 break;
             case 2:
 #if SHOW_DEBUG_OUTPUT
-                cout << "test 2\n";
+                cout << "In case 2\n";
 #endif
-                OpenFile(location);
+                OpenFile(location, location2, enteries);
                 break;
             case 3:
 #if SHOW_DEBUG_OUTPUT
-                cout << "test 3\n";
+                cout << "In case 3\n";
 #endif
-                Print(location);
+                Print(location, location2);
                 break;
             case 9:
                 cout << "Good bye\n";
@@ -111,7 +119,6 @@ int main()
         CLEAR_SCREEN;
     }
     
-    
     return EXIT_CODE_SUCCESS;
 }
 
@@ -123,36 +130,59 @@ int main()
  NOTES:
  ----------------------------------------------------------------------------- */
 
-void CreateFile(string &location)
+void CreateFile(char *dbloc, char *numloc, int &enteries)
 {
     //get peramiters
+    char temp[51];
     cout << "what should the database be called?\n";
-    cin >> location;
+    cin >> temp;
+    strcat(temp, ".db");
+    strcpy(dbloc, temp);
+    strcat(temp, "-count.dat");
+    strcpy(numloc, temp);
     
 #if SHOW_DEBUG_OUTPUT
-    cout << location << endl;
+    cout << dbloc << " -and- " << numloc << endl;
 #endif
+    enteries = 0;
     
 }
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          OpenFile()
  DESCRIPTION:       Gets file location from user and opens it for appending
- RETURNS:           0 for good and 1 for fail
+ RETURNS:           void
  NOTES:
  ----------------------------------------------------------------------------- */
-void OpenFile(string location)
+void OpenFile(char *dbloc, char *numloc, int &enteries)
 {
+    //temp holder
+    char temp[60];
+    //get db location
     cout << "Database location/name: ";
-    cin >> location;
+    cin >> temp;
+    strcat(temp, ".db");
+    strcpy(dbloc, temp);
+    strcat(temp, "-count.dat");
+    strcpy(numloc, temp);
+    
     //file check
-    ifstream fin(location, ios::binary);
-    if (fin.is_open())
+    ifstream database;
+    database.open(dbloc, ios::binary);
+    if (database.is_open())
     {
-#if SHOW_DEBUG_OUTPUT
-        cout << location << endl << endl;
-#endif
-        WriteFile(location);
+        //count file check
+        ifstream count;
+        count.open(numloc, ios::binary);
+        if (count.is_open())
+        {
+            Count numbers;
+            count.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+            enteries = numbers.times;
+            count.close();
+            database.close();
+            WriteFile(dbloc, numloc, enteries);
+        }
     }
     else
     {
@@ -168,7 +198,7 @@ void OpenFile(string location)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(string location)
+void WriteFile(char *dbloc, char *numloc, int &enteries)
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
@@ -176,10 +206,12 @@ void WriteFile(string location)
     //variables
     int x = 2;
     char yesno;
+    char upper;
     Info person;
+    Count numbers;
     //file IO
-    fstream database(location, ios::out | ios::app | ios::binary);
-
+    fstream database(dbloc, ios::out | ios::app | ios::binary);
+    fstream databasecount(numloc, ios::out | ios::trunc | ios::binary);
     do
     {
         //get information
@@ -187,35 +219,22 @@ void WriteFile(string location)
         //get first name
         cout << "First Name: ";
         cin.getline(person.fname, NAME_SIZE);
-        if (strlen(person.fname) > 24)
-        {
-            cout << "Name can't have more than 24 letters. Enter name again: ";
-            cin.getline(person.fname, NAME_SIZE);
-        }
         //get mi
         cout << "Middle Intital: ";
         cin >> person.MI;
         if (islower(person.MI))
         {
-            putchar (toupper(person.MI));
+            upper = person.MI;
+            toupper(upper);
+            person.MI = upper;
         }
         cin.ignore();
         //get last name
         cout << "Last Name: ";
         cin.getline(person.lname, NAME_SIZE);
-        if (strlen(person.lname) > 24)
-        {
-            cout << "Name can't have more than 24 letters. Enter name again: ";
-            cin.getline(person.lname, NAME_SIZE);
-        }
         //get ssn
         cout << "Employee's SSN: ";
         cin >> person.social;
-        /*while (sizeof(person.social) < 9 || sizeof(person.social) > 9)
-        {
-            cin >> person.social;
-            cout << "You must enter a valid SSN: ";
-        }*/
         //get phone area code
         cout << "Employee's Area Code: ";
         cin >> person.area_code;
@@ -224,9 +243,13 @@ void WriteFile(string location)
         cout << "Employee's Salary: ";
         cin >> person.salary;
         
-        //write to file
-        database.write(reinterpret_cast<char *> (&person), sizeof(person));
+        //number of entries
+        enteries++;
+        numbers.times = enteries;
         
+        //write to file
+        database.write(reinterpret_cast<char *>(&person), sizeof(person));
+        databasecount.write(reinterpret_cast<char *>(&numbers), sizeof(numbers));
         //go again?
         cout << "Add another entery to database? (y,n)\n";
         cin >> yesno;
@@ -247,26 +270,31 @@ void WriteFile(string location)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void Print(string location)
+void Print(char *dbloc, char *numloc)
 {
     //variables
-    string location2;
+    int enteries;
     int i = 1;
     Info person;
+    char temp[60];
+    char location2 [60];
     
+    //ask for db location
     cout << "Where is the database: ";
-    cin >> location;
+    cin >> temp;
     
-    cout << "Where should the file be saved and what should it be called: ";
-    cin >> location2;
+    //get count dat
+    strcpy(dbloc, temp);
+    strcat(temp, "-count.dat");
+    strcpy(numloc, temp);
     
-    //open database file and get # of enteries
+    //open database file
     ifstream database;
-    database.open(location, ios::binary);
+    database.open(dbloc, ios::binary);
     if (database.is_open())
     {
 #if SHOW_DEBUG_OUTPUT
-        cout << "File is open.\n";
+        cout << "db is open.\n";
 #endif
     }
     else
@@ -274,15 +302,41 @@ void Print(string location)
         cout << "Failed to open file\n";
         exit(EXIT_CODE_NO_FILE);
     }
+    
+    //open count dat
+    ifstream entrie;
+    entrie.open(numloc, ios::binary);
+    if (entrie.is_open())
+    {
+#if SHOW_DEBUG_OUTPUT
+        cout << "dat is open.\n";
+#endif
+    }
+    else
+    {
+        cout << "Failed to open file\n";
+        exit(EXIT_CODE_NO_FILE);
+    }
+
+    
+    
+    cout << "Where should the file be saved and what should it be called: ";
+    cin >> location2;
+    
     //setup user document
     ofstream report;
     report.open(location2, ios::trunc);
+    
+    /*get number of entries*/
+    Count numbers;
+    entrie.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+    enteries = numbers.times;
     
     //setup file header
     Print_title(report);
     
     //loop to write enteries to file
-    while (!database.eof())
+    while (i <= enteries)
     {
         //loading record
         database.read(reinterpret_cast<char *>(&person), sizeof(person));
@@ -307,7 +361,8 @@ void Print(string location)
 void Print_title(ofstream& report)
 {
     
-    report << "Employee    Last                    First                   MI    SS           Phone           Yearly" << endl
+    report << "                 Employee Database Report\n"
+           << "Employee    Last                    First                   MI    SS           Phone           Yearly" << endl
            << "Number      Name                    Name                          Number       Number          Salary" << endl
            << "--------    ----                    -----                   --    ------       ------          ------" << endl;
 }
@@ -339,7 +394,7 @@ void Print_body(ofstream& report, int i, Info *db)
     report << setw(11) << db->phone_num;
     //salary placement
     report.unsetf (ios::floatfield);
-    report << setw(12) << setprecision(15) << db->salary << endl;
+    report << setw(15) << setprecision(12) << db->salary << endl;
 }
 
 
