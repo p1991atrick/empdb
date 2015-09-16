@@ -238,7 +238,6 @@ void WriteFile(string location)
             x=1;
     }while (x==2);
     database.close();
-
 }
 
 
@@ -266,7 +265,9 @@ void Print(string location)
     database.open(location, ios::binary);
     if (database.is_open())
     {
+#if SHOW_DEBUG_OUTPUT
         cout << "File is open.\n";
+#endif
     }
     else
     {
@@ -321,40 +322,24 @@ void Print_title(ofstream& report)
  ----------------------------------------------------------------------------- */
 void Print_body(ofstream& report, int i, Info *db)
 {
-    int stringlength, x;
-    if (i < 10)
-    {
-        //line number
-        report << i << "           ";
-    }
-    else if(i >= 10 || i < 100)
-    {
-        report << i << "          ";
-    }
+    //line number
+    report << setw(12) << left << i;
     //last name placement
-    stringlength = strlen(db->lname);
-    x = 24 - stringlength;
-    report << db->lname;
-    for (int j=0; j<x; j++)
-    {
-        report << " ";
-    }
+    report << setw(24) << db->lname;
     //first name placement
-    stringlength = strlen(db->fname);
-    x = 24 - stringlength;
-    report << db->fname;
-    for (int j=0; j<x; j++)
-    {
-        report << " ";
-    }
+    report << setw(24) << db->fname;
     //MI placement
-    report << db->MI << "     ";
+    report << setw(6) << db->MI;
     //SS number placement
-    report << db->social << "    ";
+    report << setw(13) << db->social;
     //phone number placement
-    report << "(" << db->area_code << ")" << db->phone_num << "    ";
+    report << setw(1) << "(";
+    report << setw(3) << db->area_code;
+    report << setw(1) << ")" ;
+    report << setw(11) << db->phone_num;
     //salary placement
-    report << db->salary << endl;
+    report.unsetf (ios::floatfield);
+    report << setw(12) << setprecision(15) << db->salary << endl;
 }
 
 
