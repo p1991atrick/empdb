@@ -14,21 +14,21 @@
 
 //sort array #'s only. a=array  and b=size of the array
 #define SORT_ARRAY_NUM(a)(b) {int swap, temp;                               \
-do                                              \
-{                                               \
-swap = false;                               \
-for (i = 0; i < (b - 1); i++)               \
-{                                           \
-if (a[i] > a[i + 1])                    \
-{                                       \
-temp = a[i];                        \
-a[i] = a[i + 1];                    \
-a[i + 1] = temp;                    \
-swap = true;                        \
-}                                       \
-}                                           \
-} while (swap);                                 \
-}
+                            do                                              \
+                            {                                               \
+                                swap = false;                               \
+                                for (i = 0; i < (b - 1); i++)               \
+                                {                                           \
+                                    if (a[i] > a[i + 1])                    \
+                                    {                                       \
+                                        temp = a[i];                        \
+                                        a[i] = a[i + 1];                    \
+                                        a[i + 1] = temp;                    \
+                                        swap = true;                        \
+                                    }                                       \
+                                }                                           \
+                            } while (swap);                                 \
+                            }
 
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 

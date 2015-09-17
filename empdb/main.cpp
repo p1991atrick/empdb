@@ -284,41 +284,36 @@ void Print(char *dbloc, char *numloc)
     cin >> temp;
     
     //get count dat
+    strcat(temp, ".db");
     strcpy(dbloc, temp);
     strcat(temp, "-count.dat");
     strcpy(numloc, temp);
     
     //open database file
     ifstream database;
+    ifstream entrie;
+    
     database.open(dbloc, ios::binary);
     if (database.is_open())
     {
 #if SHOW_DEBUG_OUTPUT
         cout << "db is open.\n";
 #endif
-    }
-    else
-    {
-        cout << "Failed to open file\n";
-        exit(EXIT_CODE_NO_FILE);
-    }
-    
-    //open count dat
-    ifstream entrie;
-    entrie.open(numloc, ios::binary);
-    if (entrie.is_open())
-    {
+        //open count dat
+        entrie.open(numloc, ios::binary);
+        if (entrie.is_open())
+        {
 #if SHOW_DEBUG_OUTPUT
-        cout << "dat is open.\n";
+            cout << "dat is open.\n";
 #endif
+        }
+
     }
     else
     {
         cout << "Failed to open file\n";
         exit(EXIT_CODE_NO_FILE);
     }
-
-    
     
     cout << "Where should the file be saved and what should it be called: ";
     cin >> location2;
@@ -361,10 +356,16 @@ void Print(char *dbloc, char *numloc)
 void Print_title(ofstream& report)
 {
     
-    report << "                 Employee Database Report\n"
-           << "Employee    Last                    First                   MI    SS           Phone           Yearly" << endl
-           << "Number      Name                    Name                          Number       Number          Salary" << endl
-           << "--------    ----                    -----                   --    ------       ------          ------" << endl;
+    //title line
+    report << setw(30) << right << "Employee Database Report";
+    report << endl << endl;
+    //1st line
+    report << setw(12) << left << "Employee" << setw(20) << "Last" << setw(20) << "First" << setw(6) << "MI" << setw(13) << "SS"     << setw(16) << "Phone"  << setw(15) << "Yearly" << endl;
+    //2nd line
+    report << setw(12) << left << "Number"   << setw(20) << "Name" << setw(20) << "Name"  << setw(6) << "  " << setw(13) << "Number" << setw(16) << "Number" << setw(15) << "Salary" << endl;
+    //3rd line
+    report << setw(12) << "--------" << setw(20) << "----" << setw(20) << "-----" << setw(6) << "--" << setw(13) << "------" << setw(16) << "------" << setw(15) << "------" << endl;
+
 }
 
 
@@ -380,9 +381,9 @@ void Print_body(ofstream& report, int i, Info *db)
     //line number
     report << setw(12) << left << i;
     //last name placement
-    report << setw(24) << db->lname;
+    report << setw(20) << db->lname;
     //first name placement
-    report << setw(24) << db->fname;
+    report << setw(20) << db->fname;
     //MI placement
     report << setw(6) << db->MI;
     //SS number placement
@@ -394,7 +395,7 @@ void Print_body(ofstream& report, int i, Info *db)
     report << setw(11) << db->phone_num;
     //salary placement
     report.unsetf (ios::floatfield);
-    report << setw(15) << setprecision(12) << db->salary << endl;
+    report << "$ " << setw(13) << setprecision(12) << db->salary << endl;
 }
 
 
