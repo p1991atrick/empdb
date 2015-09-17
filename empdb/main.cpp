@@ -116,7 +116,7 @@ int main()
                 << choose << " is not a valid selection\n\n";
                 break;
         }
-        CLEAR_SCREEN;
+        //CLEAR_SCREEN;
     }
     
     return EXIT_CODE_SUCCESS;
@@ -397,26 +397,6 @@ void Print_body(ofstream& report, int i, Info *db)
     report.unsetf (ios::floatfield);
     report << "$ " << setw(13) << setprecision(12) << db->salary << endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
