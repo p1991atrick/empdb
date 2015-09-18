@@ -337,7 +337,8 @@ void Print(char *dbloc, char *numloc)
     Info person;
     Count numbers;
     char temp[60];
-    char location2 [60];
+    char location2 [60] = "Employee.Rpt";
+    char yesno;
     
     //ask for db location
     cout << "Where is the database: ";
@@ -374,8 +375,13 @@ void Print(char *dbloc, char *numloc)
         exit(EXIT_CODE_NO_FILE);
     }
     
-    cout << "Where should the file be saved and what should it be called: ";
-    cin >> location2;
+    cout << "Change default name? (y/n): ";
+    cin >> yesno;
+    if (yesno == 'y' || yesno == 'Y')
+    {
+        cout << "Where should the file be saved and what should it be called: ";
+        cin >> location2;
+    }
     
     //setup user document
     ofstream report;
