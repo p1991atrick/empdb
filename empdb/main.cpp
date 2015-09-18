@@ -51,7 +51,6 @@ struct Count
 
 //function prototypes
 void CreateFile(char *, char *, int &enteries);
-void Apend();
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
 void WriteFile(char *, char *, int &enteries);
@@ -66,7 +65,7 @@ void Print_body(ofstream& report, int i, Info *);
  FUNCTION:          main()
  DESCRIPTION:       The guy driving
  RETURNS:           0 with no errors
- NOTES:             version 1
+ NOTES:             
  ----------------------------------------------------------------------------- */
 int main()
 {
@@ -126,14 +125,12 @@ int main()
     return EXIT_CODE_SUCCESS;
 }
 
-
 /* -----------------------------------------------------------------------------
  FUNCTION:          CreateFile()
  DESCRIPTION:       Creates new database file and opens it
- RETURNS:           1 for new file, 2 for given
+ RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-
 void CreateFile(char *dbloc, char *numloc, int &enteries)
 {
     //get peramiters
@@ -274,7 +271,12 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
     databasecount.close();
 }
 
-
+/* -----------------------------------------------------------------------------
+ FUNCTION:          WriteFile_VerifySSN()
+ DESCRIPTION:       verifyies that the SSN has 9 numbers
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
 void WriteFile_VerifySSN(Info *db)
 {
     unsigned long int temp, number_of_digits= 1;
@@ -291,7 +293,12 @@ void WriteFile_VerifySSN(Info *db)
     }
 }
 
-
+/* -----------------------------------------------------------------------------
+ FUNCTION:          WriteFile_VerifyArea()
+ DESCRIPTION:       verifies that the Area Code has 3 numbers
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
 void WriteFile_VerifyArea(Info *db)
 {
     unsigned int temp, number_of_digits= 1;
@@ -308,7 +315,12 @@ void WriteFile_VerifyArea(Info *db)
     }
 }
 
-
+/* -----------------------------------------------------------------------------
+ FUNCTION:          WriteFile_VerifyPhone()
+ DESCRIPTION:       verifys that the Phone Number has 7 numbers
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
 void WriteFile_VerifyPhone(Info *db)
 {
     unsigned int temp, number_of_digits= 1;
@@ -324,7 +336,6 @@ void WriteFile_VerifyPhone(Info *db)
         cin.ignore();
     }
 }
-
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          Print()
@@ -412,15 +423,12 @@ void Print(char *dbloc, char *numloc)
     times.close();
 }
 
-
-
 /* -----------------------------------------------------------------------------
  FUNCTION:          Print_title()
  DESCRIPTION:       write the header lables to the report file
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-
 void Print_title(ofstream& report)
 {
     
@@ -435,8 +443,6 @@ void Print_title(ofstream& report)
     report << setw(12) << "--------" << setw(20) << "----" << setw(20) << "-----" << setw(6) << "--" << setw(13) << "------" << setw(16) << "------" << setw(15) << "------" << endl;
 
 }
-
-
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          Print_body()
