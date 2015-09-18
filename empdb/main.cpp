@@ -37,7 +37,7 @@ struct Info
     char fname[NAME_SIZE];
     char lname[NAME_SIZE];
     char MI;
-    unsigned int social;
+    unsigned long int social;
     unsigned int area_code;
     unsigned int phone_num;
     double salary;  //told in class to change from float to double
@@ -55,6 +55,9 @@ void Apend();
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
 void WriteFile(char *, char *, int &enteries);
+void WriteFile_VerifySSN(Info *);
+void WriteFile_VerifyArea(Info *);
+void WriteFile_VerifyPhone(Info *);
 void Print_title(ofstream& fout);
 void Print_body(ofstream& report, int i, Info *);
 
@@ -75,11 +78,12 @@ int main()
     int choose;
     int loop = 3;
     
+    cout << "   Employee Database Editor    \n\n";
+    
     while (loop ==3)
     {
         //menu
-        cout << "   Employee Database Editor    \n\n"
-        << "    Main Menu\n"
+        cout << "    Main Menu\n"
         << "1. Create new database file\n"
         << "2. Add to current database file\n"
         << "3. Print a database report\n"
@@ -235,13 +239,17 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
         //get ssn
         cout << "Employee's SSN: ";
         cin >> person.social;
+        WriteFile_VerifySSN(&person);
         //get phone area code
         cout << "Employee's Area Code: ";
         cin >> person.area_code;
+        WriteFile_VerifyArea(&person);
         cout << "Employee's Phone Number: ";
         cin >> person.phone_num;
+        WriteFile_VerifyPhone(&person);
         cout << "Employee's Salary: ";
         cin >> person.salary;
+        
         
         //number of entries
         enteries++;
@@ -264,6 +272,57 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
 }
 
 
+void WriteFile_VerifySSN(Info *db)
+{
+    unsigned long int temp, number_of_digits= 1;
+    temp = db->social;
+    do {
+        number_of_digits++;
+        temp /= 10;
+    } while (temp >= 9);
+    if (number_of_digits != 9)
+    {
+        cout << "Enter correct SSN: ";
+        cin >> db->social;
+        cin.ignore();
+    }
+}
+
+
+void WriteFile_VerifyArea(Info *db)
+{
+    unsigned int temp, number_of_digits= 1;
+    temp = db->area_code;
+    do {
+        number_of_digits++;
+        temp /= 10;
+    } while (temp >= 9);
+    if (number_of_digits != 3)
+    {
+        cout << "Enter correct Area Code: ";
+        cin >> db->area_code;
+        cin.ignore();
+    }
+}
+
+
+void WriteFile_VerifyPhone(Info *db)
+{
+    unsigned int temp, number_of_digits= 1;
+    temp = db->phone_num;
+    do {
+        number_of_digits++;
+        temp /= 10;
+    } while (temp >= 9);
+    if (number_of_digits != 7)
+    {
+        cout << "Enter correct Phone Number: ";
+        cin >> db->phone_num;
+        cin.ignore();
+    }
+}
+
+
 /* -----------------------------------------------------------------------------
  FUNCTION:          Print()
  DESCRIPTION:       controls the writing of the report file
@@ -276,8 +335,10 @@ void Print(char *dbloc, char *numloc)
     int enteries;
     int i = 1;
     Info person;
+    Count numbers;
     char temp[60];
-    char location2 [60];
+    char location2 [60] = "Employee.Rpt";
+    char yesno;
     
     //ask for db location
     cout << "Where is the database: ";
@@ -307,7 +368,6 @@ void Print(char *dbloc, char *numloc)
             cout << "dat is open.\n";
 #endif
         }
-
     }
     else
     {
@@ -315,15 +375,19 @@ void Print(char *dbloc, char *numloc)
         exit(EXIT_CODE_NO_FILE);
     }
     
-    cout << "Where should the file be saved and what should it be called: ";
-    cin >> location2;
+    cout << "Change default name? (y/n): ";
+    cin >> yesno;
+    if (yesno == 'y' || yesno == 'Y')
+    {
+        cout << "Where should the file be saved and what should it be called: ";
+        cin >> location2;
+    }
     
     //setup user document
     ofstream report;
     report.open(location2, ios::trunc);
     
     /*get number of entries*/
-    Count numbers;
     entrie.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
     enteries = numbers.times;
     
