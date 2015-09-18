@@ -46,7 +46,7 @@ struct Info
 //for count
 struct Count
 {
-    int times;
+    unsigned int times;
 };
 
 //function prototypes
@@ -257,7 +257,6 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
         
         //write to file
         database.write(reinterpret_cast<char *>(&person), sizeof(person));
-        databasecount.write(reinterpret_cast<char *>(&numbers), sizeof(numbers));
         //go again?
         cout << "Add another entery to database? (y,n)\n";
         cin >> yesno;
@@ -268,7 +267,11 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
         else
             x=1;
     }while (x==2);
+    //write report count
+    databasecount.write(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+    
     database.close();
+    databasecount.close();
 }
 
 
@@ -352,7 +355,7 @@ void Print(char *dbloc, char *numloc)
     
     //open database file
     ifstream database;
-    ifstream entrie;
+    ifstream times;
     
     database.open(dbloc, ios::binary);
     if (database.is_open())
@@ -361,8 +364,8 @@ void Print(char *dbloc, char *numloc)
         cout << "db is open.\n";
 #endif
         //open count dat
-        entrie.open(numloc, ios::binary);
-        if (entrie.is_open())
+        times.open(numloc, ios::binary);
+        if (times.is_open())
         {
 #if SHOW_DEBUG_OUTPUT
             cout << "dat is open.\n";
@@ -388,7 +391,7 @@ void Print(char *dbloc, char *numloc)
     report.open(location2, ios::trunc);
     
     /*get number of entries*/
-    entrie.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+    times.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
     enteries = numbers.times;
     
     //setup file header
@@ -406,6 +409,7 @@ void Print(char *dbloc, char *numloc)
     //close files
     database.close();
     report.close();
+    times.close();
 }
 
 
