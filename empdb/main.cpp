@@ -449,9 +449,9 @@ void Print_body(ofstream& report, int i, Info *db)
     //line number
     report << setw(12) << left << i;
     //last name placement
-    report << setw(20) << db->lname;
+    report << setw(NAME_SIZE-4) << db->lname;
     //first name placement
-    report << setw(20) << db->fname;
+    report << setw(NAME_SIZE-4) << db->fname;
     //MI placement
     report << setw(6) << db->MI;
     //SS number placement
