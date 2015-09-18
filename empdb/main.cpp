@@ -65,7 +65,7 @@ void Print_body(ofstream& report, int i, Info *);
  FUNCTION:          main()
  DESCRIPTION:       The guy driving
  RETURNS:           0 with no errors
- NOTES:             
+ NOTES:
  ----------------------------------------------------------------------------- */
 int main()
 {
@@ -206,7 +206,7 @@ void WriteFile(char *dbloc, char *numloc, int &enteries)
 #endif
     //variables
     int x = 2;
-    char yesno;
+    char yesno = 'n';
     char upper;
     Info person;
     Count numbers;
@@ -352,7 +352,7 @@ void Print(char *dbloc, char *numloc)
     Count numbers;
     char temp[60];
     char location2 [60] = "Employee.Rpt";
-    char yesno;
+    char yesno = 'n';
     
     //ask for db location
     cout << "Where is the database: ";
