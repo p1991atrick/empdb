@@ -50,6 +50,9 @@ struct Count
 };
 
 //function prototypes
+void handle_cmd_line_args(int argc, char *argv[]);
+void help();
+
 void CreateFile(char *, char *, int &enteries);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
@@ -67,63 +70,62 @@ void Print_body(ofstream& report, int i, Info *);
  RETURNS:           0 with no errors
  NOTES:
  ----------------------------------------------------------------------------- */
-int main()
+int main(int argc, char *argv[])
 {
-    //variables for later on
-    char location[50];
-    char location2[60];
-    int enteries;
-    //int for main menu
-    int choose;
-    int loop = 3;
-    
-    cout << "   Employee Database Editor    \n\n";
-    
-    while (loop ==3)
-    {
-        //menu
-        cout << "    Main Menu\n"
-        << "1. Create new database file\n"
-        << "2. Add to current database file\n"
-        << "3. Print a database report\n"
-        << "9. Exit\n";
-        cin >> choose;
-        
-        switch(choose)
-        {
-            case 1:
-#if SHOW_DEBUG_OUTPUT
-                cout << "In case 1\n";
-#endif
-                CreateFile(location, location2, enteries);
-                WriteFile(location, location2, enteries);
-                break;
-            case 2:
-#if SHOW_DEBUG_OUTPUT
-                cout << "In case 2\n";
-#endif
-                OpenFile(location, location2, enteries);
-                break;
-            case 3:
-#if SHOW_DEBUG_OUTPUT
-                cout << "In case 3\n";
-#endif
-                Print(location, location2);
-                break;
-            case 9:
-                cout << "Good bye\n";
-                loop = 4;
-                break;
-            default:
-                cout << "You must pick an option from the list\n"
-                << choose << " is not a valid selection\n\n";
-                break;
-        }
-        //CLEAR_SCREEN;
-    }
-    
+    handle_cmd_line_args(argc, argv);
+
     return EXIT_CODE_SUCCESS;
 }
+
+
+void handle_cmd_line_args(int argc, char *argv[])
+{
+    //get args
+    char * acceptible_strings[] =
+    {
+        "v", "c", "w", "f", "p", "x", "h"
+    };
+    //truefalse for check
+    bool found_verbose = false;
+    bool found_c = false;
+    bool found_write = false;
+    bool found_file = false;
+    bool found_print = false;
+    bool found_x = false;
+    bool found_help = false;
+    
+    //  DEBUG_OUTPUT(argc);
+    for (int i=1; i < argc; i++)
+    {
+        //      DEBUG_OUTPUT(argv[i]);
+        char * argument = argv[i];
+        if(argument[0] != '-')      // for dos '/' should be used
+        {
+            cout << "Exiting with code " << EXIT_CODE_INCORECCT_INPUT << endl;
+            exit(EXIT_CODE_INCORECCT_INPUT);
+        }
+            // Look for "help"
+            int return_code = strcmp(argument + 1, "h");
+            if (return_code == 0)
+            {
+                found_help = true;
+            }
+        
+    }
+    if (found_help == true)
+    {
+        help();
+    }
+}
+
+
+void help()
+{
+#if DEBUG_OUTPUT
+    cout <<"this is help" << endl;
+#endif
+}
+
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          CreateFile()
