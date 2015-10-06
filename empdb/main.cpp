@@ -50,10 +50,10 @@ struct Count
 };
 
 //function prototypes
-void handle_cmd_line_args(int argc, char *argv[]);
+void handle_cmd_line_args(int argc, char *argv[], char *, char *, int &enteries);
 void help();
 
-void CreateFile(char *, char *, int &enteries);
+void CreateFile(char *, char *, int &enteries, char *);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
 void WriteFile(char *, char *, int &enteries);
@@ -72,58 +72,79 @@ void Print_body(ofstream& report, int i, Info *);
  ----------------------------------------------------------------------------- */
 int main(int argc, char *argv[])
 {
-    handle_cmd_line_args(argc, argv);
+    //variables for later on
+    char * location[50];
+    char * location2[60];
+    int enteries;
+
+    handle_cmd_line_args(argc, argv, *location, *location2, enteries);
 
     return EXIT_CODE_SUCCESS;
 }
 
 
-void handle_cmd_line_args(int argc, char *argv[])
+void handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &enteries)
 {
     //get args
     char * acceptible_strings[] =
     {
-        "v", "c", "w", "f", "p", "x", "h"
+        "verbose", "create-file", "add-entrie", "f", "print-report", "x", "help"
     };
     //truefalse for check
-    bool found_verbose = false;
-    bool found_c = false;
-    bool found_write = false;
-    bool found_file = false;
-    bool found_print = false;
-    bool found_x = false;
+
     bool found_help = false;
+    bool found_create_file = false;
     
-    //  DEBUG_OUTPUT(argc);
+    
+    unsigned int count = 0;
+    //loop for finding argv's
     for (int i=1; i < argc; i++)
     {
-        //      DEBUG_OUTPUT(argv[i]);
         char * argument = argv[i];
-        if(argument[0] != '-')      // for dos '/' should be used
+        //      DEBUG_OUTPUT(argv[i]);
+        if (argument[0] != '-')      // for dos '/' should be used, cause dos
         {
-            cout << "Exiting with code " << EXIT_CODE_INCORECCT_INPUT << endl;
-            exit(EXIT_CODE_INCORECCT_INPUT);
-        }
-            // Look for "help"
-            int return_code = strcmp(argument + 1, "h");
-            if (return_code == 0)
+            if (count > 0)
             {
-                found_help = true;
+                if (found_create_file == true)
+                {
+                    CreateFile(location, location2, enteries, argument);
+                }
+                if (found_help == true)
+                {
+                    help();
+                }
+
             }
+            else
+            {
+                cout << "Exiting with code " << EXIT_CODE_INCORECCT_INPUT << endl;
+                exit(EXIT_CODE_INCORECCT_INPUT);
+            }
+        }
+        count++;
+
+        // Look for "help"
+        int return_code = strcmp(argument + 1, "help");
+        if (return_code == 0)
+            found_help = true;
         
-    }
-    if (found_help == true)
-    {
-        help();
+        // look for "create-file"
+        return_code = strcmp(argument + 1, "create-file");
+        if (return_code == 0)
+            found_create_file = true;
+        
     }
 }
 
 
 void help()
 {
-#if DEBUG_OUTPUT
+#if SHOW_DEBUG_OUTPUT
     cout <<"this is help" << endl;
 #endif
+    cout << "Employee Database tool\n"
+    << "Writen by Patrick Kelly\n\n";
 }
 
 
@@ -133,16 +154,17 @@ void help()
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void CreateFile(char *dbloc, char *numloc, int &enteries)
+void CreateFile(char *dbloc, char *numloc, int &enteries, char *argument)
 {
     //get peramiters
-    char temp[51];
-    cout << "what should the database be called?\n";
-    cin >> temp;
-    strcat(temp, ".db");
-    strcpy(dbloc, temp);
-    strcat(temp, "-count.dat");
-    strcpy(numloc, temp);
+    unsigned int argsize = sizeof(argument);
+    char * temp[argsize + 12];
+    
+    
+    strcat(*temp, ".db");
+    strcpy(dbloc, *temp);
+    strcat(*temp, "-count.dat");
+    strcpy(numloc, *temp);
     
 #if SHOW_DEBUG_OUTPUT
     cout << dbloc << " -and- " << numloc << endl;
