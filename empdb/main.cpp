@@ -41,6 +41,7 @@ struct Info
     unsigned int area_code;
     unsigned int phone_num;
     double salary;  //told in class to change from float to double
+    static int count;
 };
 
 //for count
@@ -53,7 +54,7 @@ struct Count
 void handle_cmd_line_args(int argc, char *argv[], char *, char *, int &enteries);
 void help();
 
-void CreateFile(char *, char *, int &enteries, char *);
+void CreateFile(char *, char *, int &enteries);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
 void WriteFile(char *, char *, int &enteries);
@@ -94,6 +95,7 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
 
     bool found_help = false;
     bool found_create_file = false;
+    bool found_add_entrie = false;
     
     
     unsigned int count = 0;
@@ -106,15 +108,7 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
         {
             if (count > 0)
             {
-                if (found_create_file == true)
-                {
-                    CreateFile(location, location2, enteries, argument);
-                }
-                if (found_help == true)
-                {
-                    help();
-                }
-
+                
             }
             else
             {
@@ -132,9 +126,26 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
         // look for "create-file"
         return_code = strcmp(argument + 1, "create-file");
         if (return_code == 0)
+        {
             found_create_file = true;
+            i++;
+            location = argv[i];
+            
+        }
+    }
+    if (found_create_file == true)
+    {
+        CreateFile(location, location2, enteries);
+    }
+    if (found_help == true)
+    {
+        help();
+    }
+    if (found_add_entrie == true)
+    {
         
     }
+    
 }
 
 
@@ -144,7 +155,8 @@ void help()
     cout <<"this is help" << endl;
 #endif
     cout << "Employee Database tool\n"
-    << "Writen by Patrick Kelly\n\n";
+    << "Writen by Patrick Kelly\n\n"
+    << "-crate-file [destination]";
 }
 
 
@@ -154,17 +166,17 @@ void help()
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void CreateFile(char *dbloc, char *numloc, int &enteries, char *argument)
+void CreateFile(char *dbloc, char *numloc, int &enteries)
 {
-    //get peramiters
-    unsigned int argsize = sizeof(argument);
-    char * temp[argsize + 12];
+    fstream database;
     
+    strcat(dbloc, ".db");
     
-    strcat(*temp, ".db");
-    strcpy(dbloc, *temp);
-    strcat(*temp, "-count.dat");
-    strcpy(numloc, *temp);
+    database.open(dbloc, ios::out | ios::binary);
+    if(!database.is_open())
+        exit(EXIT_CODE_NOFILE);
+    
+
     
 #if SHOW_DEBUG_OUTPUT
     cout << dbloc << " -and- " << numloc << endl;

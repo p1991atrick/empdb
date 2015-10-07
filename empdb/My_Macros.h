@@ -37,6 +37,7 @@
 #define EXIT_CODE_NO_FILE 1
 #define EXIT_CODE_INCORECCT_INPUT 2
 #define EXIT_CODE_NO_MATCH 3
+#define EXIT_CODE_NOFILE 4
 
 #define DEBUG_OUTPUT(x) std::cout << #x << " = " << x << std::endl;
 
