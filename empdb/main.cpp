@@ -41,6 +41,10 @@ struct Info
     unsigned int area_code;
     unsigned int phone_num;
     double salary;  //told in class to change from float to double
+};
+//for count
+struct Count
+{
     unsigned int times;
 };
 
@@ -68,14 +72,15 @@ void Print_body(ofstream& report, int i, Info *);
 int main(int argc, char *argv[])
 {
     //variables for later on
-    char * location[50];
-    char * location2[60];
+    char location[50]; //refered to as dbloc
+    char location2[60];//refered to as numloc
+    location2[0] = '\0';
     int enteries;
 
     if (argc <2)
-        exit(EXIT_CODE_NO_MATCH);
+        help();
     else
-        handle_cmd_line_args(argc, argv, *location, *location2, enteries);
+        handle_cmd_line_args(argc, argv, location, location2, enteries);
 
     return EXIT_CODE_SUCCESS;
 }
@@ -84,11 +89,11 @@ int main(int argc, char *argv[])
 void handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &enteries)
 {
      Info person;
-    //get args
+    /*get args
     char * acceptible_strings[] =
     {
         "verbose", "create-file", "add-entrie", "dbloac", "print-report", "x", "help"
-    };
+    };*/
     //true false checks
     bool found_help = false;
     bool found_create_file = false;
@@ -128,7 +133,7 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
         {
             found_create_file = true;
             i++;
-            location = argv[i];
+            strcpy(location, argv[i]);
         }
         // look for "create-file"
         return_code = strcmp(argument + 1, "add-entrie");
@@ -160,7 +165,7 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
         {
             found_dbloc = true;
             i++;
-            location = argv[i];
+            strcpy(location, argv[i]);
         }
         
     }
@@ -180,7 +185,12 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
     
 }
 
-
+/* -----------------------------------------------------------------------------
+ FUNCTION:          help()
+ DESCRIPTION:       lists all comands and their functions
+ RETURNS:           void function
+ NOTES:
+ ----------------------------------------------------------------------------- */
 void help()
 {
 #if SHOW_DEBUG_OUTPUT
@@ -188,12 +198,12 @@ void help()
 #endif
     cout << "Employee Database tool\n"
     << "Writen by Patrick Kelly\n\n"
-    << "-crate-file [destination]       creates a new database file in the location speciied with name given\n"
+    << "-crate-file [destination]       creates a new database file in the location speciied with name given. will overwrite same name file.\n"
     << "-dbloc [location]               the location of the database file\n"
-    << "-write-file [fistname] [lastname] [Middle Initial] [social] [area code] [phone number] [salary]\n"
+    << "-add-entrie [fistname] [lastname] [Middle Initial] [social] [area code] [phone number] [salary]\n"
     << "                                the dbloc must be specified first\n"
     << "-print-report [db location] [name of report file]\n"
-    << "                                prints report file from chosen database file to listed report file. the report file name is optional";
+    << "                                prints report file from chosen database file to listed report file. the report file name is optional\n";
 }
 
 
@@ -206,26 +216,44 @@ void help()
 void CreateFile(char *dbloc, char *numloc, int &enteries)
 {
     fstream database;
-    
-    strcat(dbloc, ".db");
-    
-    database.open(dbloc, ios::out | ios::binary);
-    if(!database.is_open())
-        exit(EXIT_CODE_NOFILE);
-    
+    ofstream count;
+    char *returnarg = nullptr;
+    //int returncode;
+    //check if .db is on filename
+    returnarg = strstr(dbloc, ".db");
+    //returncode = strcmp(returnarg, ".db");
+    if (returnarg == NULL)
+    {
+        strcat(dbloc, ".db");
+    }
+    //gen count file name
+    unsigned int dblocsize = (strlen(dbloc)+1);
+    strncpy(numloc, dbloc, dblocsize);
+    strcat(numloc, "-count.dat");
 
     
+    database.open(dbloc, ios::out | ios::trunc | ios::binary);
+    if(database.is_open())
+    {
+        count.open(numloc, ios::trunc | ios::binary);
+        if(!count.is_open())
+            exit(EXIT_CODE_NO_FILE);
+    }
 #if SHOW_DEBUG_OUTPUT
-    cout << dbloc << endl;
+    cout << dbloc << " and " << numloc << endl;
 #endif
     enteries = 0;
+    Count number;
+    number.times = enteries;
+    database.write(reinterpret_cast<char *>(&number), sizeof(number));
     database.close();
+    count.close();
     
 }
 
 /* -----------------------------------------------------------------------------
  FUNCTION:          OpenFile()
- DESCRIPTION:       Gets file location from user and opens it for appending
+ DESCRIPTION:       Gets file location from user and opens it for appending and get number of entries
  RETURNS:           void
  NOTES:
  ----------------------------------------------------------------------------- */
@@ -233,24 +261,39 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
 {
     //temp arg variables
     char *returnarg = nullptr;
-    int returncode;
+    //int returncode;
     
     //check if .db is on filename
     returnarg = strstr(dbloc, ".db");
-    returncode = strcmp(returnarg, ".db");
-    if (returncode != 0)
+   // returncode = strcmp(returnarg, ".db");
+    if (returnarg == NULL)
     {
         strcat(dbloc, ".db");
     }
+    //gen count file name
+    unsigned int dblocsize = (strlen(dbloc)+1);
+    strncpy(numloc, dbloc, dblocsize);
+    strcat(numloc, "-count.dat");
     
     //file check
     ifstream database;
     database.open(dbloc, ios::binary);
     if (database.is_open())
     {
-        Info person;
-        database.read(reinterpret_cast<char *>(&person), sizeof(person));
-        enteries = person.times;
+        ifstream count;
+        count.open(numloc, ios::binary);
+        if (count.is_open())
+        {
+            Count numbers;
+            database.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+            enteries = numbers.times;
+            count.close();
+        }
+        else
+        {
+            cout << "Failed to open file\n";
+            exit(EXIT_CODE_NO_FILE);
+        }
         database.close();
     }
     else
@@ -272,22 +315,15 @@ void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person)
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
-    //variables
-    char upper;
+    Count number;
     //file IO
     fstream database(dbloc, ios::out | ios::app | ios::binary);
-    if (islower(person->MI))
-    {
-        upper = person->MI;
-        toupper(upper);
-        person->MI = upper;
-    }
     WriteFile_VerifySSN(person);
     WriteFile_VerifyArea(person);
     WriteFile_VerifyPhone(person);
     //number of entries
     enteries++;
-    person->times = enteries;
+    number.times = enteries;
     
     //write to file
     database.write(reinterpret_cast<char *>(&person), sizeof(person));
