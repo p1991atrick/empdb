@@ -41,12 +41,6 @@ struct Info
     unsigned int area_code;
     unsigned int phone_num;
     double salary;  //told in class to change from float to double
-    static int count;
-};
-
-//for count
-struct Count
-{
     unsigned int times;
 };
 
@@ -57,7 +51,7 @@ void help();
 void CreateFile(char *, char *, int &enteries);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
-void WriteFile(char *, char *, int &enteries);
+void WriteFile(char *, char *, int &enteries, Info *);
 void WriteFile_VerifySSN(Info *);
 void WriteFile_VerifyArea(Info *);
 void WriteFile_VerifyPhone(Info *);
@@ -78,7 +72,10 @@ int main(int argc, char *argv[])
     char * location2[60];
     int enteries;
 
-    handle_cmd_line_args(argc, argv, *location, *location2, enteries);
+    if (argc <2)
+        exit(EXIT_CODE_NO_MATCH);
+    else
+        handle_cmd_line_args(argc, argv, *location, *location2, enteries);
 
     return EXIT_CODE_SUCCESS;
 }
@@ -86,16 +83,19 @@ int main(int argc, char *argv[])
 
 void handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &enteries)
 {
+     Info person;
     //get args
     char * acceptible_strings[] =
     {
-        "verbose", "create-file", "add-entrie", "f", "print-report", "x", "help"
+        "verbose", "create-file", "add-entrie", "dbloac", "print-report", "x", "help"
     };
-    //truefalse for check
-
+    //true false checks
     bool found_help = false;
     bool found_create_file = false;
     bool found_add_entrie = false;
+    bool found_dbloc = false;
+    bool found_change_name = false;
+    bool found_print_file = false;
     
     
     unsigned int count = 0;
@@ -117,12 +117,11 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
             }
         }
         count++;
-
+        
         // Look for "help"
         int return_code = strcmp(argument + 1, "help");
         if (return_code == 0)
             found_help = true;
-        
         // look for "create-file"
         return_code = strcmp(argument + 1, "create-file");
         if (return_code == 0)
@@ -130,20 +129,53 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
             found_create_file = true;
             i++;
             location = argv[i];
+        }
+        // look for "create-file"
+        return_code = strcmp(argument + 1, "add-entrie");
+        if (return_code == 0)
+        {
+            found_add_entrie = true;
+            if(found_dbloc == true)
+            {
+                i++;
+                strncpy(person.fname, argv[i], 20);
+                i++;
+                strncpy(person.lname, argv[i], 20);
+                i++;
+                strncpy(&person.MI, argv[i], 1);
+                i++;
+                person.social = atol(argv[i]);
+                i++;
+                person.area_code = atoi(argv[i]);
+                i++;
+                person.phone_num = atoi(argv[i]);
+                i++;
+                person.salary = atof(argv[i]);
+            }
             
         }
+        //look for file locaion
+        return_code = strcmp(argument + 1, "dbloc");
+        if (return_code == 0)
+        {
+            found_dbloc = true;
+            i++;
+            location = argv[i];
+        }
+        
     }
     if (found_create_file == true)
     {
         CreateFile(location, location2, enteries);
     }
-    if (found_help == true)
+    if (found_help == true || (found_dbloc == false && found_add_entrie == false && found_change_name == false && found_create_file == false && found_print_file == false))
     {
         help();
     }
-    if (found_add_entrie == true)
+    if (found_add_entrie == true && found_dbloc == true)
     {
-        
+        OpenFile(location, location2, enteries);
+        WriteFile(location, location2, enteries, &person);
     }
     
 }
@@ -156,7 +188,12 @@ void help()
 #endif
     cout << "Employee Database tool\n"
     << "Writen by Patrick Kelly\n\n"
-    << "-crate-file [destination]";
+    << "-crate-file [destination]       creates a new database file in the location speciied with name given\n"
+    << "-dbloc [location]               the location of the database file\n"
+    << "-write-file [fistname] [lastname] [Middle Initial] [social] [area code] [phone number] [salary]\n"
+    << "                                the dbloc must be specified first\n"
+    << "-print-report [db location] [name of report file]\n"
+    << "                                prints report file from chosen database file to listed report file. the report file name is optional";
 }
 
 
@@ -179,9 +216,10 @@ void CreateFile(char *dbloc, char *numloc, int &enteries)
 
     
 #if SHOW_DEBUG_OUTPUT
-    cout << dbloc << " -and- " << numloc << endl;
+    cout << dbloc << endl;
 #endif
     enteries = 0;
+    database.close();
     
 }
 
@@ -193,33 +231,27 @@ void CreateFile(char *dbloc, char *numloc, int &enteries)
  ----------------------------------------------------------------------------- */
 void OpenFile(char *dbloc, char *numloc, int &enteries)
 {
-    //temp holder
-    char temp[60];
-    //get db location
-    cout << "Database location/name: ";
-    cin >> temp;
-    strcat(temp, ".db");
-    strcpy(dbloc, temp);
-    strcat(temp, "-count.dat");
-    strcpy(numloc, temp);
+    //temp arg variables
+    char *returnarg = nullptr;
+    int returncode;
+    
+    //check if .db is on filename
+    returnarg = strstr(dbloc, ".db");
+    returncode = strcmp(returnarg, ".db");
+    if (returncode != 0)
+    {
+        strcat(dbloc, ".db");
+    }
     
     //file check
     ifstream database;
     database.open(dbloc, ios::binary);
     if (database.is_open())
     {
-        //count file check
-        ifstream count;
-        count.open(numloc, ios::binary);
-        if (count.is_open())
-        {
-            Count numbers;
-            count.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
-            enteries = numbers.times;
-            count.close();
-            database.close();
-            WriteFile(dbloc, numloc, enteries);
-        }
+        Info person;
+        database.read(reinterpret_cast<char *>(&person), sizeof(person));
+        enteries = person.times;
+        database.close();
     }
     else
     {
@@ -235,76 +267,31 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(char *dbloc, char *numloc, int &enteries)
+void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person)
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
     //variables
-    int x = 2;
-    char yesno = 'n';
     char upper;
-    Info person;
-    Count numbers;
     //file IO
     fstream database(dbloc, ios::out | ios::app | ios::binary);
-    fstream databasecount(numloc, ios::out | ios::trunc | ios::binary);
-    do
+    if (islower(person->MI))
     {
-        //get information
-        cin.ignore();
-        //get first name
-        cout << "First Name: ";
-        cin.getline(person.fname, NAME_SIZE);
-        //get mi
-        cout << "Middle Intital: ";
-        cin >> person.MI;
-        if (islower(person.MI))
-        {
-            upper = person.MI;
-            toupper(upper);
-            person.MI = upper;
-        }
-        cin.ignore();
-        //get last name
-        cout << "Last Name: ";
-        cin.getline(person.lname, NAME_SIZE);
-        //get ssn
-        cout << "Employee's SSN: ";
-        cin >> person.social;
-        WriteFile_VerifySSN(&person);
-        //get phone area code
-        cout << "Employee's Area Code: ";
-        cin >> person.area_code;
-        WriteFile_VerifyArea(&person);
-        cout << "Employee's Phone Number: ";
-        cin >> person.phone_num;
-        WriteFile_VerifyPhone(&person);
-        cout << "Employee's Salary: ";
-        cin >> person.salary;
-        
-        
-        //number of entries
-        enteries++;
-        numbers.times = enteries;
-        
-        //write to file
-        database.write(reinterpret_cast<char *>(&person), sizeof(person));
-        //go again?
-        cout << "Add another entery to database? (y,n)\n";
-        cin >> yesno;
-        if (yesno == 'y' || yesno == 'Y')
-        {
-            x=2;
-        }
-        else
-            x=1;
-    }while (x==2);
-    //write report count
-    databasecount.write(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+        upper = person->MI;
+        toupper(upper);
+        person->MI = upper;
+    }
+    WriteFile_VerifySSN(person);
+    WriteFile_VerifyArea(person);
+    WriteFile_VerifyPhone(person);
+    //number of entries
+    enteries++;
+    person->times = enteries;
     
+    //write to file
+    database.write(reinterpret_cast<char *>(&person), sizeof(person));
     database.close();
-    databasecount.close();
 }
 
 /* -----------------------------------------------------------------------------
@@ -385,7 +372,6 @@ void Print(char *dbloc, char *numloc)
     int enteries;
     int i = 1;
     Info person;
-    Count numbers;
     char temp[60];
     char location2 [60] = "Employee.Rpt";
     char yesno = 'n';
@@ -402,7 +388,6 @@ void Print(char *dbloc, char *numloc)
     
     //open database file
     ifstream database;
-    ifstream times;
     
     database.open(dbloc, ios::binary);
     if (database.is_open())
@@ -410,14 +395,6 @@ void Print(char *dbloc, char *numloc)
 #if SHOW_DEBUG_OUTPUT
         cout << "db is open.\n";
 #endif
-        //open count dat
-        times.open(numloc, ios::binary);
-        if (times.is_open())
-        {
-#if SHOW_DEBUG_OUTPUT
-            cout << "dat is open.\n";
-#endif
-        }
     }
     else
     {
@@ -438,8 +415,8 @@ void Print(char *dbloc, char *numloc)
     report.open(location2, ios::trunc);
     
     /*get number of entries*/
-    times.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
-    enteries = numbers.times;
+    database.read(reinterpret_cast<char *>(&person), sizeof(person));
+    enteries = person.times;
     
     //setup file header
     Print_title(report);
@@ -456,7 +433,6 @@ void Print(char *dbloc, char *numloc)
     //close files
     database.close();
     report.close();
-    times.close();
 }
 
 /* -----------------------------------------------------------------------------

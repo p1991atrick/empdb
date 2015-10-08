@@ -10,13 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "empdb/main.cpp"
-            timestampString = "465878409.016129"
+            timestampString = "466018149.620496"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
-            landmarkName = "OpenFile(char *dbloc, char *numloc, int &amp;enteries)"
-            landmarkType = "7">
+            startingLineNumber = "202"
+            endingLineNumber = "202">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -26,12 +24,26 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "empdb/main.cpp"
-            timestampString = "465878227.707242"
+            timestampString = "466018149.620496"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
-            landmarkName = "handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &amp;enteries)"
+            startingLineNumber = "82"
+            endingLineNumber = "82">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "empdb/main.cpp"
+            timestampString = "466018149.620496"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "main(int argc, char *argv[])"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,11 +54,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "empdb/main.cpp"
-            timestampString = "465877838.620085"
+            timestampString = "466018149.620496"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
             landmarkName = "handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &amp;enteries)"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,26 +70,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "empdb/main.cpp"
-            timestampString = "465877838.620085"
+            timestampString = "466018149.620496"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "85"
-            endingLineNumber = "85">
+            startingLineNumber = "257"
+            endingLineNumber = "257"
+            landmarkName = "WriteFile(char *dbloc, char *numloc, int &amp;enteries, Info *person)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "empdb/main.cpp"
-            timestampString = "465877838.620085"
+            timestampString = "466018149.620496"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
-            landmarkName = "main(int argc, char *argv[])"
+            startingLineNumber = "218"
+            endingLineNumber = "218"
+            landmarkName = "OpenFile(char *dbloc, char *numloc, int &amp;enteries)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
