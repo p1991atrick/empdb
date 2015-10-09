@@ -55,7 +55,7 @@ void help();
 void CreateFile(char *, char *, int &enteries);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
-void WriteFile(char *, char *, int &enteries, Info *);
+void WriteFile(char *, char *, int &enteries, Info *, int &i, char *argv[]);
 void WriteFile_VerifySSN(Info *);
 void WriteFile_VerifyArea(Info *);
 void WriteFile_VerifyPhone(Info *);
@@ -130,20 +130,8 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
             found_add_entrie = true;
             if(found_dbloc == true)
             {
-                i++;
-                strncpy(person.fname, argv[i], 20);
-                i++;
-                strncpy(person.lname, argv[i], 20);
-                i++;
-                strncpy(&person.MI, argv[i], 1);
-                i++;
-                person.social = atol(argv[i]);
-                i++;
-                person.area_code = atoi(argv[i]);
-                i++;
-                person.phone_num = atoi(argv[i]);
-                i++;
-                person.salary = atof(argv[i]);
+                OpenFile(location, location2, enteries);
+                WriteFile(location, location2, enteries, &person, i, argv);
             }
             
         }
@@ -176,11 +164,6 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
     {
         help();
     }
-    if (found_add_entrie == true && found_dbloc == true)
-    {
-        OpenFile(location, location2, enteries);
-        WriteFile(location, location2, enteries, &person);
-    }
     if (found_print_file == true)
     {
         Print(location, location2);
@@ -201,7 +184,7 @@ void help()
 #endif
     cout << "Employee Database tool\n"
     << "Writen by Patrick Kelly\n\n"
-    << "-crate-file [destination]       creates a new database file in the location speciied with name given. will overwrite same name file.\n"
+    << "-create-file [destination]       creates a new database file in the location speciied with name given. will overwrite same name file.\n"
     << "-dbloc [location]               the location of the database file\n"
     << "-add-entrie [fistname] [lastname] [Middle Initial] [social] [area code] [phone number] [salary]\n"
     << "                                the dbloc must be specified first\n"
@@ -230,7 +213,7 @@ void CreateFile(char *dbloc, char *numloc, int &enteries)
         strcat(dbloc, ".db");
     }
     //gen count file name
-    unsigned int dblocsize = (strlen(dbloc)+1);
+    unsigned long int dblocsize = (strlen(dbloc)+1);
     strncpy(numloc, dbloc, dblocsize);
     strcat(numloc, "-count.dat");
 
@@ -248,7 +231,7 @@ void CreateFile(char *dbloc, char *numloc, int &enteries)
     enteries = 0;
     Count number;
     number.times = enteries;
-    database.write(reinterpret_cast<char *>(&number), sizeof(number));
+    count.write(reinterpret_cast<char *>(&number), sizeof(number));
     database.close();
     count.close();
     
@@ -274,7 +257,7 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
         strcat(dbloc, ".db");
     }
     //gen count file name
-    unsigned int dblocsize = (strlen(dbloc)+1);
+    unsigned long int dblocsize = (strlen(dbloc)+1);
     strncpy(numloc, dbloc, dblocsize);
     strcat(numloc, "-count.dat");
     
@@ -313,13 +296,28 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person)
+void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person, int &i, char *argv[])
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
     //counter strut
     Count number;
+    
+    i++;
+    strncpy(person->fname, argv[i], 20);
+    i++;
+    strncpy(person->lname, argv[i], 20);
+    i++;
+    strncpy(&person->MI, argv[i], 1);
+    i++;
+    person->social = atol(argv[i]);
+    i++;
+    person->area_code = atoi(argv[i]);
+    i++;
+    person->phone_num = atoi(argv[i]);
+    i++;
+    person->salary = atof(argv[i]);
     
     //file IO
     fstream database;
@@ -424,19 +422,18 @@ void Print(char *dbloc, char *numloc)
     Count number;
     char temp[60];
     char location3 [60] = "Employee.Rpt";
-    char yesno = 'n';
     
     //temp arg variables
     char *returnarg = nullptr;
     //check if .db is on filename
     returnarg = strstr(dbloc, ".db");
-    // returncode = strcmp(returnarg, ".db");
+    
     if (returnarg == NULL)
     {
         strcat(dbloc, ".db");
     }
     //gen count file name
-    unsigned int dblocsize = (strlen(dbloc)+1);
+    unsigned long int dblocsize = (strlen(dbloc)+1);
     strncpy(temp, dbloc, dblocsize);
     strcat(temp, "-count.dat");
     
