@@ -55,7 +55,7 @@ void help();
 void CreateFile(char *, char *, int &enteries);
 void Print(char *, char *);
 void OpenFile(char *, char *, int &enteries);
-void WriteFile(char *, char *, int &enteries, Info *, int &i, char *argv[]);
+void WriteFile(char *, char *, int &enteries, int &i, char *argv[]);
 void WriteFile_VerifySSN(Info *);
 void WriteFile_VerifyArea(Info *);
 void WriteFile_VerifyPhone(Info *);
@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
 
 void handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &enteries)
 {
-     Info person;
     //true false checks
     bool found_help = false;
     bool found_create_file = false;
@@ -131,7 +130,7 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
             if(found_dbloc == true)
             {
                 OpenFile(location, location2, enteries);
-                WriteFile(location, location2, enteries, &person, i, argv);
+                WriteFile(location, location2, enteries, i, argv);
             }
             
         }
@@ -271,7 +270,7 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
         if (count.is_open())
         {
             Count numbers;
-            database.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
+            count.read(reinterpret_cast<char *>(&numbers), sizeof(numbers));
             enteries = numbers.times;
             count.close();
         }
@@ -296,49 +295,47 @@ void OpenFile(char *dbloc, char *numloc, int &enteries)
  RETURNS:           void function
  NOTES:
  ----------------------------------------------------------------------------- */
-void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person, int &i, char *argv[])
+void WriteFile(char *dbloc, char *numloc, int &enteries, int &i, char *argv[])
 {
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
     //counter strut
-    Count number;
-    
-    i++;
-    strncpy(person->fname, argv[i], 20);
-    i++;
-    strncpy(person->lname, argv[i], 20);
-    i++;
-    strncpy(&person->MI, argv[i], 1);
-    i++;
-    person->social = atol(argv[i]);
-    i++;
-    person->area_code = atoi(argv[i]);
-    i++;
-    person->phone_num = atoi(argv[i]);
-    i++;
-    person->salary = atof(argv[i]);
-    
+    Info person;
+    Count numbers;
     //file IO
-    fstream database;
-    database.open(dbloc, ios::out | ios::app | ios::binary);
-    fstream counter;
-    counter.open(numloc, ios::out | ios::trunc | ios::binary);
+    fstream database(dbloc, ios::out | ios::app | ios::binary);
+    fstream databasecount(numloc, ios::out | ios::trunc | ios::binary);
+    
+    i++;
+    strncpy(person.fname, argv[i], 20);
+    i++;
+    strncpy(person.lname, argv[i], 20);
+    i++;
+    strncpy(&person.MI, argv[i], 1);
+    i++;
+    person.social = atol(argv[i]);
+    i++;
+    person.area_code = atoi(argv[i]);
+    i++;
+    person.phone_num = atoi(argv[i]);
+    i++;
+    person.salary = atof(argv[i]);
     
     //lenght checks
-    WriteFile_VerifySSN(person);
-    WriteFile_VerifyArea(person);
-    WriteFile_VerifyPhone(person);
+    WriteFile_VerifySSN(&person);
+    WriteFile_VerifyArea(&person);
+    WriteFile_VerifyPhone(&person);
     
     //number of entries
     enteries++;
-    number.times = enteries;
+    numbers.times = enteries;
     
     //write to file
     database.write(reinterpret_cast<char *>(&person), sizeof(person));
+    databasecount.write(reinterpret_cast<char *>(&numbers), sizeof(numbers));
     database.close();
-    counter.write(reinterpret_cast<char *>(&number), sizeof(number));
-    counter.close();
+    databasecount.close();
 }
 
 /* -----------------------------------------------------------------------------
@@ -438,28 +435,25 @@ void Print(char *dbloc, char *numloc)
     strcat(temp, "-count.dat");
     
     //open database file
-    ifstream database;
-    ifstream count;
-    
-    database.open(dbloc, ios::binary);
+    fstream database(dbloc, ios::in | ios::binary);
+    fstream count(temp, ios::in | ios::binary);
+
     if (database.is_open())
     {
 #if SHOW_DEBUG_OUTPUT
         cout << "db is open.\n";
 #endif
-    }
-    else
-    {
-        cout << "Failed to open file\n";
-        exit(EXIT_CODE_NO_FILE);
-    }
-    
-    count.open(temp, ios::binary);
-    if (count.is_open())
-    {
+        if (count.is_open())
+        {
 #if SHOW_DEBUG_OUTPUT
-        cout << "count file is open.\n";
+            cout << "count file is open.\n";
 #endif
+        }
+        else
+        {
+            cout << "Failed to open file\n";
+            exit(EXIT_CODE_NO_FILE);
+        }
     }
     else
     {
@@ -508,7 +502,7 @@ void Print_title(ofstream& report)
 {
     
     //title line
-    report << setw(30) << right << "Employee Database Report";
+    report << setw(60) << right << "Employee Database Report";
     report << endl << endl;
     //1st line
     report << setw(12) << left << "Employee" << setw(20) << "Last" << setw(20) << "First" << setw(6) << "MI" << setw(13) << "SS"     << setw(16) << "Phone"  << setw(15) << "Yearly" << endl;
@@ -530,9 +524,9 @@ void Print_body(ofstream& report, int i, Info *db)
     //line number
     report << setw(12) << left << i;
     //last name placement
-    report << setw(NAME_SIZE-4) << db->lname;
+    report << setw(20) << db->lname;
     //first name placement
-    report << setw(NAME_SIZE-4) << db->fname;
+    report << setw(20) << db->fname;
     //MI placement
     report << setw(6) << db->MI;
     //SS number placement
@@ -544,7 +538,7 @@ void Print_body(ofstream& report, int i, Info *db)
     report << setw(11) << db->phone_num;
     //salary placement
     report.unsetf (ios::floatfield);
-    report << "$ " << setw(13) << setprecision(12) << db->salary << endl;
+    report << "$ " << setw(13) << setprecision(12) << right << db->salary << endl;
 }
 
 
