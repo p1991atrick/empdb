@@ -74,7 +74,10 @@ int main(int argc, char *argv[])
     //variables for later on
     char location[50]; //refered to as dbloc
     char location2[60];//refered to as numloc
-    location2[0] = '\0';
+    for(int i=0; i<60;i++)
+    {
+        location2[i] = '\0';
+    }
     int enteries;
 
     if (argc <2)
@@ -89,11 +92,6 @@ int main(int argc, char *argv[])
 void handle_cmd_line_args(int argc, char *argv[], char *location, char *location2, int &enteries)
 {
      Info person;
-    /*get args
-    char * acceptible_strings[] =
-    {
-        "verbose", "create-file", "add-entrie", "dbloac", "print-report", "x", "help"
-    };*/
     //true false checks
     bool found_help = false;
     bool found_create_file = false;
@@ -103,7 +101,6 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
     bool found_print_file = false;
     
     
-    unsigned int count = 0;
     //loop for finding argv's
     for (int i=1; i < argc; i++)
     {
@@ -111,18 +108,9 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
         //      DEBUG_OUTPUT(argv[i]);
         if (argument[0] != '-')      // for dos '/' should be used, cause dos
         {
-            if (count > 0)
-            {
-                
-            }
-            else
-            {
-                cout << "Exiting with code " << EXIT_CODE_INCORECCT_INPUT << endl;
-                exit(EXIT_CODE_INCORECCT_INPUT);
-            }
+            cout << "Exiting with code " << EXIT_CODE_INCORECCT_INPUT << endl;
+            exit(EXIT_CODE_INCORECCT_INPUT);
         }
-        count++;
-        
         // Look for "help"
         int return_code = strcmp(argument + 1, "help");
         if (return_code == 0)
@@ -167,6 +155,17 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
             i++;
             strcpy(location, argv[i]);
         }
+        //look for print file
+        return_code = strcmp(argument +1 , "print-report");
+        if (return_code == 0)
+        {
+            found_print_file = true;
+            i++;
+            strcpy(location, argv[i]);
+            i++;
+            if (i < argc)
+                strcpy(location2, argv[i]);
+        }
         
     }
     if (found_create_file == true)
@@ -181,6 +180,10 @@ void handle_cmd_line_args(int argc, char *argv[], char *location, char *location
     {
         OpenFile(location, location2, enteries);
         WriteFile(location, location2, enteries, &person);
+    }
+    if (found_print_file == true)
+    {
+        Print(location, location2);
     }
     
 }
@@ -315,12 +318,20 @@ void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person)
 #if SHOW_DEBUG_OUTPUT
     cout << "In WriteFile !!\n";
 #endif
+    //counter strut
     Count number;
+    
     //file IO
-    fstream database(dbloc, ios::out | ios::app | ios::binary);
+    fstream database;
+    database.open(dbloc, ios::out | ios::app | ios::binary);
+    fstream counter;
+    counter.open(numloc, ios::out | ios::trunc | ios::binary);
+    
+    //lenght checks
     WriteFile_VerifySSN(person);
     WriteFile_VerifyArea(person);
     WriteFile_VerifyPhone(person);
+    
     //number of entries
     enteries++;
     number.times = enteries;
@@ -328,6 +339,8 @@ void WriteFile(char *dbloc, char *numloc, int &enteries, Info *person)
     //write to file
     database.write(reinterpret_cast<char *>(&person), sizeof(person));
     database.close();
+    counter.write(reinterpret_cast<char *>(&number), sizeof(number));
+    counter.close();
 }
 
 /* -----------------------------------------------------------------------------
@@ -408,22 +421,28 @@ void Print(char *dbloc, char *numloc)
     int enteries;
     int i = 1;
     Info person;
+    Count number;
     char temp[60];
-    char location2 [60] = "Employee.Rpt";
+    char location3 [60] = "Employee.Rpt";
     char yesno = 'n';
     
-    //ask for db location
-    cout << "Where is the database: ";
-    cin >> temp;
-    
-    //get count dat
-    strcat(temp, ".db");
-    strcpy(dbloc, temp);
+    //temp arg variables
+    char *returnarg = nullptr;
+    //check if .db is on filename
+    returnarg = strstr(dbloc, ".db");
+    // returncode = strcmp(returnarg, ".db");
+    if (returnarg == NULL)
+    {
+        strcat(dbloc, ".db");
+    }
+    //gen count file name
+    unsigned int dblocsize = (strlen(dbloc)+1);
+    strncpy(temp, dbloc, dblocsize);
     strcat(temp, "-count.dat");
-    strcpy(numloc, temp);
     
     //open database file
     ifstream database;
+    ifstream count;
     
     database.open(dbloc, ios::binary);
     if (database.is_open())
@@ -438,21 +457,32 @@ void Print(char *dbloc, char *numloc)
         exit(EXIT_CODE_NO_FILE);
     }
     
-    cout << "Change default name? (y/n): ";
-    cin >> yesno;
-    if (yesno == 'y' || yesno == 'Y')
+    count.open(temp, ios::binary);
+    if (count.is_open())
     {
-        cout << "Where should the file be saved and what should it be called: ";
-        cin >> location2;
+#if SHOW_DEBUG_OUTPUT
+        cout << "count file is open.\n";
+#endif
+    }
+    else
+    {
+        cout << "Failed to open file\n";
+        exit(EXIT_CODE_NO_FILE);
+    }
+    
+    //find if report file name was givin
+    if(numloc[0] == '\0')
+    {
+        strncpy(numloc, location3, (strlen(location3)+1));
     }
     
     //setup user document
     ofstream report;
-    report.open(location2, ios::trunc);
+    report.open(numloc, ios::trunc);
     
     /*get number of entries*/
-    database.read(reinterpret_cast<char *>(&person), sizeof(person));
-    enteries = person.times;
+    count.read(reinterpret_cast<char *>(&number), sizeof(number));
+    enteries = number.times;
     
     //setup file header
     Print_title(report);
