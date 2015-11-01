@@ -41,6 +41,6 @@
 
 #define DEBUG_OUTPUT(x) std::cout << #x << " = " << x << std::endl;
 
-#define CLEAR_SCREEN std::cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 
 #define SHOW_VERBOSE verbose
+#define CLEAR_SCREEN std::cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
